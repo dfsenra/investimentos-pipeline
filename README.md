@@ -8,7 +8,7 @@ Escolha um local para extrair as pastas conforme estrutura abaixo:
 Investimentos/
 │
 ├── data/
-│   ├── tickers.csv
+│   ├── tickers.csv             # crie um arquivo com todos os ativos que deseja coletar preços. Veja tickers_exemple.csv
 │   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
 │   └── checkpoints/
 │       └── .gitkeep
@@ -98,8 +98,8 @@ EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 ```
 
 ### 2.2: Alimentação do tickers.csv
-O pipeline inicia a sua busca através dos ativos listados dentro do arquivo tickers.csv.
-Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio.
+O pipeline inicia a sua busca através dos ativos listados dentro do arquivo tickers.csv que deve estar na pasta data.
+Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio. Use o nome "tickers.csv".
 Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
 
 ### 2.3: Automatização do pipeline no MacOS
