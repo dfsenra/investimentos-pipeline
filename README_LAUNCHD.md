@@ -14,10 +14,13 @@ nano ~/Library/LaunchAgents/com.coleta.precos.plist
 ### Etapa 3: Código do arquivo .plist
 
 #### 3.1: Edite o "CAMINHO_DA_SUA_PASTA"
-Cole o código abaixo dentro do arquivo e substituia todos os "CAMINHO_DA_SUA_PASTA" abaixo pelo caminho correto no seu computador.
+Cole o código abaixo dentro do arquivo e substitua todos os "CAMINHO_DA_SUA_PASTA" abaixo pelo caminho correto no seu computador.
 
-#### Nota: 
+#### Nota 1: 
 Eu uso o anaconda, caso não use altera a linha com "<string>/opt/anaconda3/bin/python3</string>".
+
+#### Nota 2:
+Caso o script não rode, verifique se o Python possui permissão de execução e se o macOS não bloqueou o processo por segurança (System Settings → Privacy & Security).
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>

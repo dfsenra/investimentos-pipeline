@@ -9,7 +9,7 @@ Investimentos/
 │
 ├── data/
 │   ├── tickers.csv
-│   ├── precos_fechamento.csv
+│   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
 │   └── checkpoints/
 │       └── .gitkeep
 │
@@ -81,6 +81,10 @@ Investimentos/
 ## 2. Preparando o seu ambiente para o pipeline
 
 ### 2.1: Criação do arquivo .env
+
+#### Nota3:
+Nunca versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
+
 Esse pipeline possui uma função que envia e-mail automaticamente em caso de erros durante a coleta de 
 preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros. Caso a coleta seja
 concluída com sucesso, nada será enviado.
@@ -96,7 +100,7 @@ EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 ### 2.2: Alimentação do tickers.csv
 O pipeline inicia a sua busca através dos ativos listados dentro do arquivo tickers.csv.
 Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio.
-Essa atualização pode ser manual ou automatizada a depende de como você faz a sua gestão financeira.
+Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
 
 ### 2.3: Automatização do pipeline no MacOS
 
