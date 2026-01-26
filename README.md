@@ -8,17 +8,17 @@ Escolha um local para extrair as pastas conforme estrutura abaixo:
 Investimentos/
 │
 ├── data/
-│   ├── tickers.csv             # crie um arquivo com todos os ativos que deseja coletar preços. Veja tickers_exemple.csv
+│   ├── tickers.csv             # mantenha esse arquivo com todos os ativos que deseja coletar preços.
 │   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
 │   └── checkpoints/
 │       └── .gitkeep
 │
 ├── logs/
-│   └── .gitkeep
+│   └── .gitkeep                # gerados automaticamente pelo pipeline
 │
 ├── scripts/
 │   ├── coleta_precos.py
-│   └── .env.example
+│   └── .env.example            # edite a sua SENHA_APP e renomeie para .env 
 │
 ├── README.md
 ├── README_LAUNCHD.md
@@ -96,6 +96,7 @@ Após criar a sua SENHA_APP, abra um editor de texto e cole a seguinte linha aba
 EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 
 ```
+Veja a foto "e-mail automatico.png" de um exemplo de e-mail recebido pelo pipeline.
 
 ### 2.2: Alimentação do tickers.csv
 O pipeline inicia a sua busca através dos ativos listados dentro do arquivo tickers.csv que deve estar na pasta data.
