@@ -1,0 +1,24 @@
+# ===== macOS =====
+.DS_Store
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== Logs =====
+logs/*.log
+logs/*.out
+logs/*.err
+
+# ===== Dados gerados =====
+data/precos_fechamento.csv
+data/checkpoints/*.csv
+
+# ===== Ambiente =====
+.env
+__pycache__/
+*.pyc
+
+#===== Arquivos pessoais ====
+Carteira Finclass.xlsm
+~$Carteira Finclass.xlsm
+Invest_Gastos Acumulado.xlsx
