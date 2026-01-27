@@ -10,6 +10,7 @@ def load_data():
     return df
 
 df = load_data()
+df = df.dropna(subset=["date", "close", "ticker"])
 
 st.title("Financial Asset Explorer")
 
@@ -18,7 +19,7 @@ st.sidebar.header("Filters")
 
 ticker = st.sidebar.selectbox(
     "Select ticker",
-    sorted(df["ticker"].unique())
+    sorted(df["ticker"].dropna().astype(str).unique())
 )
 
 start_date, end_date = st.sidebar.date_input(
