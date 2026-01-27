@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 import time
 
-TICKERS = ["FLRY3.SA", "SAPR11.SA", "PSEC11.SA", "KFOF11.SA", "VALE3.SA", "PETR3.SA", "IBOV.SA"]  # Irei puxar da base de dados na versão final
+TICKERS = ["FLRY3.SA", "SAPR11.SA", "PSEC11.SA", "KFOF11.SA", "VALE3.SA", "PETR3.SA", "BOVA11.SA"]  # Irei puxar da base de dados na versão final
 START_DATE = "2019-01-01"
 END_DATE = datetime.today().strftime("%Y-%m-%d")
 
