@@ -36,8 +36,17 @@ filtered = df[
 # KPIs
 col1, col2, col3, col4, col5 = st.columns(5)
 
+if filtered.empty or len(filtered) < 2:
+    st.warning("Not enough data for the selected filters.")
+    st.stop()
+
+filtered = filtered.copy()
+filtered["close"] = pd.to_numeric(filtered["close"], errors="coerce")
+filtered = filtered.dropna(subset=["close"])
+
 price_start = filtered["close"].iloc[0]
 price_end = filtered["close"].iloc[-1]
+
 returns = filtered["close"].pct_change().dropna()
 
 col1.metric("Start Price", f"{price_start:.2f}")
@@ -53,4 +62,7 @@ st.subheader("Price History")
 st.line_chart(filtered.set_index("date")["close"])
 
 st.subheader("Volume")
-st.bar_chart(filtered.set_index("date")["volume"])
+if "volume" in filtered.columns:
+    st.subheader("Volume")
+    st.bar_chart(filtered.set_index("date")["volume"])
+
