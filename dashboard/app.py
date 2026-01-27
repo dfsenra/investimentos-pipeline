@@ -108,8 +108,22 @@ volatility = returns.std() * np.sqrt(252) * 100
 col4.metric("Volatility", f"{volatility:.2f}%")
 
 # ======================================================
-# Gráficos
+# Benchmark - Ibovespa
 # ======================================================
 st.subheader("Performance (Base 100)")
-st.line_chart(price_norm)
+if "Ibovespa" in benchmarks:
+    ibov = (
+        df[df["ticker"] == "BOVA11.SA"]
+        .loc[lambda x: (x["date"] >= start_date) & (x["date"] <= end_date)]
+        .sort_values("date")
+        .set_index("date")["close"]
+    )
+
+    if len(ibov) >= 2:
+        plot_df["Ibovespa"] = normalize_series(ibov)
+
+# ============================
+# Plot
+# ============================
+st.line_chart(plot_df)
 
