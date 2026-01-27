@@ -111,6 +111,11 @@ col4.metric("Volatility", f"{volatility:.2f}%")
 # Benchmark - Ibovespa
 # ======================================================
 st.subheader("Performance (Base 100)")
+
+plot_df = pd.DataFrame({
+    ticker: price_norm
+})
+
 if "Ibovespa" in benchmarks:
     ibov = (
         df[df["ticker"] == "BOVA11.SA"]
