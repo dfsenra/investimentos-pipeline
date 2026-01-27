@@ -4,17 +4,27 @@ import numpy as np
 
 st.set_page_config(page_title="Financial Dashboard", layout="wide")
 
+# ======================================================
+# Carregando dados
+# ======================================================
 @st.cache_data
 def load_data():
     df = pd.read_csv("data/historical/precos_historicos.csv", parse_dates=["date"])
+    
+    df = df.dropna(subset=["date", "close", "ticker"])
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df = df.dropna(subset=["close"])
+
     return df
 
 df = load_data()
-df = df.dropna(subset=["date", "close", "ticker"])
 
 st.title("Financial Asset Explorer")
 
-# Sidebar
+
+# ======================================================
+# Sidebar - filtros
+# ======================================================
 st.sidebar.header("Filters")
 
 ticker = st.sidebar.selectbox(
@@ -22,47 +32,84 @@ ticker = st.sidebar.selectbox(
     sorted(df["ticker"].dropna().astype(str).unique())
 )
 
-start_date, end_date = st.sidebar.date_input(
-    "Select date range",
-    [df["date"].min(), df["date"].max()]
+period = st.sidebar.selectbox(
+    "Select period",
+    [
+        "Last 1 month",
+        "Last 3 months",
+        "Last 6 months",
+        "YTD",
+        "Last 1 year",
+        "Last 5 years"
+    ]
 )
 
-filtered = df[
-    (df["ticker"] == ticker) &
-    (df["date"] >= pd.to_datetime(start_date)) &
-    (df["date"] <= pd.to_datetime(end_date))
-].sort_values("date")
+def resolve_period(period, df):
+    end = df["date"].max()
 
-# KPIs
-col1, col2, col3, col4, col5 = st.columns(5)
+    if period == "Last 1 month":
+        start = end - pd.DateOffset(months=1)
+    elif period == "Last 3 months":
+        start = end - pd.DateOffset(months=3)
+    elif period == "Last 6 months":
+        start = end - pd.DateOffset(months=6)
+    elif period == "YTD":
+        start = pd.Timestamp(end.year, 1, 1)
+    elif period == "Last 1 year":
+        start = end - pd.DateOffset(years=1)
+    else:
+        start = end - pd.DateOffset(years=5)
+
+    return start, end
+
+def normalize_series(series):
+    return (series / series.iloc[0]) * 100
+
+benchmarks = st.sidebar.multiselect(
+    "Select benchmark",
+    ["Ibovespa", "CDI"]
+)
+
+# ======================================================
+# Datas - filtros
+# ======================================================
+start_date, end_date = resolve_period(period, df)
+
+filtered = (
+    df[df["ticker"] == ticker]
+    .loc[lambda x: (x["date"] >= start_date) & (x["date"] <= end_date)]
+    .sort_values("date")
+)
 
 if filtered.empty or len(filtered) < 2:
     st.warning("Not enough data for the selected filters.")
     st.stop()
 
-filtered = filtered.copy()
-filtered["close"] = pd.to_numeric(filtered["close"], errors="coerce")
-filtered = filtered.dropna(subset=["close"])
+# ======================================================
+# Séries normalizadas
+# ======================================================
+price_series = filtered.set_index("date")["close"]
+price_norm = normalize_series(price_series)
 
-price_start = filtered["close"].iloc[0]
-price_end = filtered["close"].iloc[-1]
+# ======================================================
+# KPIs
+# ======================================================
+returns = price_series.pct_change().dropna()
 
-returns = filtered["close"].pct_change().dropna()
+col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Start Price", f"{price_start:.2f}")
-col2.metric("End Price", f"{price_end:.2f}")
-col3.metric("Return (%)", f"{(price_end/price_start - 1)*100:.2f}%")
-col4.metric("Volatility", f"{returns.std()*np.sqrt(252)*100:.2f}%")
+col1.metric("Start (Base)", "100")
+col2.metric("End", f"{price_norm.iloc[-1]:.2f}")
 
-drawdown = (filtered["close"] / filtered["close"].cummax() - 1).min()
-col5.metric("Max Drawdown", f"{drawdown*100:.2f}%")
+total_return = price_norm.iloc[-1] - 100
+col3.metric("Total Return", f"{total_return:.2f}%")
 
-# Charts
-st.subheader("Price History")
-st.line_chart(filtered.set_index("date")["close"])
+volatility = returns.std() * np.sqrt(252) * 100
+col4.metric("Volatility", f"{volatility:.2f}%")
 
-st.subheader("Volume")
-if "volume" in filtered.columns:
-    st.subheader("Volume")
-    st.bar_chart(filtered.set_index("date")["volume"])
+# ======================================================
+# Gráficos
+# ======================================================
+st.subheader("Performance (Base 100)")
+st.line_chart(price_norm)
 

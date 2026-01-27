@@ -254,7 +254,7 @@ logging.info(f"Tempo total de execução: {tempo_total}")
 
 print_ui("\n================ RESUMO DA EXECUÇÃO ================")
 print_ui(f"✔ Ativos coletados : {len(registros)}")
-print_ui(f"⚠ Ativos descartados: {len(ativos_descartados)}")
-print_ui(f"⏱ Tempo total       : {tempo_total:.1f} segundos")
+print_ui(f"Ativos descartados: {len(ativos_descartados)}")
+print_ui(f"Tempo total       : {tempo_total:.1f} segundos")
 print_ui("===================================================")
 
