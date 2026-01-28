@@ -97,7 +97,7 @@ Salve o arquivo e renomeie removendo o ".example". Deixe apenas como ".env". O a
 Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "cat .env". Edite, salve e feche.
 
 Veja abaixo um exemplo de e-mail recebido pelo pipeline:
-![Terminal progress](docs/images/pipeline_terminal.png)
+![E-mail Automático](docs/images/e-mail_automatico.png)
 
 
 #### Nota3:
@@ -112,16 +112,14 @@ Essa atualização pode ser manual ou automatizada a depender de como você faz 
 
 Caso queira automatizar esse pipeline, siga as instruções do README_LAUNCHD.
 Eu particularmente acho isso muito prático, pois o meu computador rodar o pipeline automaticamente todo dia
-as 18:30h, após fechamento do mercado. Dessa forma, a minha base de dados é alimentada automaticamente todos os dias
-com as cotações do dia anterior, sem que eu precise fazer nada.
+as 18:30h, após fechamento do mercado (você pode alterar esse horário no .plist, está descrito no README_LAUNCHD). Dessa forma, a minha base de dados é alimentada automaticamente todos os dias com as cotações do dia anterior, sem que eu precise fazer nada.
 
+Caso prefira rodar o código manualmente pelo terminal, basta executar o arquivo "coleta_precos.py" via Python.
+Quando executado manualmente, o pipeline mostra o progresso de execução em tempo real, com todos os estágios relevantes na tela:
+
+![Terminal progress](docs/images/pipeline_terminal.png)
 
 <h2>Author:</h2> 
 
 Douglas Senra
 
-
-
-```python
-
-```
