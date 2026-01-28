@@ -7,9 +7,19 @@ Escolha um local para extrair as pastas conforme estrutura abaixo:
 ```    
 Investimentos/
 │
+├── dashboard/
+│   ├── app.py                  
+│
+│
+├── docs/   
+│   └── images/
+│       ├── e-mail_automatico.png
+│       └── pipeline_terminal.png
 ├── data/
 │   ├── tickers.csv             # mantenha esse arquivo com todos os ativos que deseja coletar preços.
 │   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
+│   ├── historical/
+│   │   └── precos_historicos.csv
 │   └── checkpoints/
 │       └── .gitkeep
 │
@@ -18,10 +28,15 @@ Investimentos/
 │
 ├── scripts/
 │   ├── coleta_precos.py
+│   ├── backfill_historico.py
 │   └── .env.example            # edite a sua SENHA_APP e renomeie para .env 
 │
 ├── README.md
 ├── README_LAUNCHD.md
+├── pyproject.toml
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
 └── .gitignore
 ```
 
@@ -80,26 +95,7 @@ Investimentos/
 
 ## 2. Preparando o seu ambiente para o pipeline
 
-### 2.1: Criação do ambiente virtual
-
-Se você é novato, provavelmente nunca trabalhou com um ambiente virtual. Podemos fazer isso de maneira mais sofisticada usando o Docker por exemplo, mas para esse projeto preferi algo mais simples.
-
-Abra o terminal na pasta do seu projeto e digite os seguintes comandos:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-```
-
-Todos os pacotes necessários para rodar esse projeto serão instalados nesse ambiente virtual. Você verá algo tipo:
-```bash
-(.venv) User@192 investimentos-pipeline %
-```
-Isso é importante, pois agora você tem um ambiente isolado e limpo para esse projeto.
-
-### 2.2: Criação do arquivo .env
+### 2.1: Criação do arquivo .env
 
 Esse pipeline possui uma função que envia e-mail automaticamente em caso de erros durante a coleta de 
 preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros, ou seja, sem spam. Caso a coleta seja
@@ -121,7 +117,34 @@ Veja abaixo um exemplo de e-mail recebido pelo pipeline:
 
 
 #### Nota3:
-Nunca versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
+Caso queira compartilhar o projeto, você nunca deve versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
+
+### 2.2: Criação do ambiente virtual via Docker
+
+Abra o Docker (caso não tenha, faça o download/instalação antes de seguir).
+
+Abra o terminal na raiz do projeto e digite o seguinte comando:
+```bash
+docker compose up --build -d
+```
+Serão criados uma imagem e um container para o projeto. Pronto, agora a aplicação terá um ambiente dedicado para ela!
+O dashboard ficará disponível em:
+
+```bash
+http://localhost:8501
+```
+
+Quando finalizar o uso da aplicação, rode o seguinte código no terminal da pasta raiz do projeto:
+```bash
+docker compose down
+```
+
+#### Nota4:
+A partir de agora a imagem e container já estão criadas no Docker e não precisam ser recriados, mesmo que os códigos sejam alterados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
+```bash
+docker compose up --build -d   #Iniciar a imagem/container e rodar a aplicação
+docker compose down            #Pausar tudo
+``` 
 
 ### 2.3: Alimentação do tickers.csv
 O pipeline inicia a sua busca através dos ativos listados dentro do arquivo "tickers.csv" que deve estar na pasta "data".

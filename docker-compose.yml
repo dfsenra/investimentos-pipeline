@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build: .
+    container_name: investimentos-dashboard
+    ports:
+      - "8501:8501"
+    env_file:
+      - scripts/.env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
