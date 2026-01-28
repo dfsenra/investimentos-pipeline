@@ -80,7 +80,26 @@ Investimentos/
 
 ## 2. Preparando o seu ambiente para o pipeline
 
-### 2.1: Criação do arquivo .env
+### 2.1: Criação do ambiente virtual
+
+Se você é novato, provavelmente nunca trabalhou com um ambiente virtual. Podemos fazer isso de maneira mais sofisticada usando o Docker por exemplo, mas para esse projeto preferi algo mais simples.
+
+Abra o terminal na pasta do seu projeto e digite os seguintes comandos:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+```
+
+Todos os pacotes necessários para rodar esse projeto serão instalados nesse ambiente virtual. Você verá algo tipo:
+```bash
+(.venv) User@192 investimentos-pipeline %
+```
+Isso é importante, pois agora você tem um ambiente isolado e limpo para esse projeto.
+
+### 2.2: Criação do arquivo .env
 
 Esse pipeline possui uma função que envia e-mail automaticamente em caso de erros durante a coleta de 
 preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros, ou seja, sem spam. Caso a coleta seja
@@ -94,7 +113,8 @@ EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 
 ```
 Salve o arquivo e renomeie removendo o ".example". Deixe apenas como ".env". O arquivo ficará oculto na pasta.
-Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "cat .env". Edite, salve e feche.
+Para ler o conteúdo do arquivo oculto, abra o terminal no caminho onde o arquivo está localizado e digite "cat .env".
+Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "nano .env". Após editar, salve (Ctrl + O), pressione Enter e feche (Ctrl + X).
 
 Veja abaixo um exemplo de e-mail recebido pelo pipeline:
 ![E-mail Automático](docs/images/e-mail_automatico.png)
@@ -103,12 +123,12 @@ Veja abaixo um exemplo de e-mail recebido pelo pipeline:
 #### Nota3:
 Nunca versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
 
-### 2.2: Alimentação do tickers.csv
+### 2.3: Alimentação do tickers.csv
 O pipeline inicia a sua busca através dos ativos listados dentro do arquivo "tickers.csv" que deve estar na pasta "data".
 Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio, sempre com o nome "tickers.csv".
 Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
 
-### 2.3: Automatização do pipeline no MacOS
+### 2.4: Automatização do pipeline no MacOS - OPCIONAL
 
 Caso queira automatizar esse pipeline, siga as instruções do README_LAUNCHD.
 Eu particularmente acho isso muito prático, pois o meu computador rodar o pipeline automaticamente todo dia
