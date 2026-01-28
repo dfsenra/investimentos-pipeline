@@ -82,25 +82,30 @@ Investimentos/
 
 ### 2.1: Criação do arquivo .env
 
-#### Nota3:
-Nunca versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
-
 Esse pipeline possui uma função que envia e-mail automaticamente em caso de erros durante a coleta de 
-preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros. Caso a coleta seja
+preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros, ou seja, sem spam. Caso a coleta seja
 concluída com sucesso, nada será enviado.
-Para que o e-mail seja disparado, use uma conta gmail como remetente. Para isso será necessário criar uma
+Para que o e-mail seja disparado, eu utilizei uma conta gmail como remetente. Para isso será necessário criar uma
 SENHA_APP. Existem alguns tutorais na internet muitos simples mostrando como fazer isso.
 
-Após criar a sua SENHA_APP, abra um editor de texto e cole a seguinte linha abaixo com a sua senha:
+Após criar a sua SENHA_APP, abra o arquivo ".env.example" com um editor de texto e substitua "SENHA_APP_DO_SEU_GMAIL" pela sua senha:
 ```
 EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 
 ```
-Veja a foto "e-mail automatico.png" de um exemplo de e-mail recebido pelo pipeline.
+Salve o arquivo e renomeie removendo o ".example". Deixe apenas como ".env". O arquivo ficará oculto na pasta.
+Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "cat .env". Edite, salve e feche.
+
+Veja abaixo um exemplo de e-mail recebido pelo pipeline:
+![Terminal progress](docs/images/pipeline_terminal.png)
+
+
+#### Nota3:
+Nunca versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
 
 ### 2.2: Alimentação do tickers.csv
-O pipeline inicia a sua busca através dos ativos listados dentro do arquivo tickers.csv que deve estar na pasta data.
-Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio. Use o nome "tickers.csv".
+O pipeline inicia a sua busca através dos ativos listados dentro do arquivo "tickers.csv" que deve estar na pasta "data".
+Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio, sempre com o nome "tickers.csv".
 Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
 
 ### 2.3: Automatização do pipeline no MacOS
