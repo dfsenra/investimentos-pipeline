@@ -1,7 +1,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
-![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/docker-build.yml/badge.svg)
+![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/ci.yml/badge.svg)
 
 # Pipeline para coleta de preços de ações, ETFs, FIIs etc no YFinance
 
