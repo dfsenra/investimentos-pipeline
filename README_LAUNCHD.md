@@ -115,7 +115,7 @@ Processando FLRY3.SA
 Caso precise editar o arquivo .plist (launchd):
 
 ```
-nano ~/Library/LaunchAgents/com.coleta.precos.plist
+nano ~/Library/LaunchAgents/com.seunome.coleta.precos.plist
 ````
 
 #### Faça as alterações que deseja.
@@ -129,13 +129,13 @@ control + X > sair
 Após editar, descarreue e carregue o arquivo editado:
 
 ```
-launchctl unload ~/Library/LaunchAgents/com.coleta.precos.plist
-launchctl load ~/Library/LaunchAgents/com.coleta.precos.plist
+launchctl unload ~/Library/LaunchAgents/com.seunome.coleta.precos.plist
+launchctl load ~/Library/LaunchAgents/com.seunome.coleta.precos.plist
 ````
 
 Force a execução manual:
 ```
-launchctl kickstart -k gui/$(id -u)/com.coleta.precos
+launchctl kickstart -k gui/$(id -u)/com.seunome.coleta.precos
 ```
 
 <h2>Author:</h2> 
