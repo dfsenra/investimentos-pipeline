@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/docker-build.yml/badge.svg)
+
 # Pipeline para coleta de preços de ações, ETFs, FIIs etc no YFinance
 
 ## 1. Introdução: Arquitetura e Fluxo do pipeline
@@ -31,7 +36,12 @@ Investimentos/
 │   ├── backfill_historico.py
 │   └── .env.example            # edite a sua SENHA_APP e renomeie para .env 
 │
-├── README.md
+├── tests/
+│   ├── test_data_files.py
+│   └── test_pipeline_basic.py
+│
+│
+│── README.md
 ├── README_LAUNCHD.md
 ├── pyproject.toml
 ├── requirements.txt
@@ -140,7 +150,7 @@ docker compose down
 ```
 
 #### Nota4:
-A partir de agora a imagem e container já estão criadas no Docker e não precisam ser recriados, mesmo que os códigos sejam alterados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
+A partir de agora a imagem e container já estão criados no Docker e não precisam ser recriados, mesmo que os códigos sejam alterados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
 ```bash
 docker compose up --build -d   #Iniciar a imagem/container e rodar a aplicação
 docker compose down            #Pausar tudo
@@ -161,6 +171,19 @@ Caso prefira rodar o código manualmente pelo terminal, basta executar o arquivo
 Quando executado manualmente, o pipeline mostra o progresso de execução em tempo real, com todos os estágios relevantes na tela:
 
 ![Terminal progress](docs/images/pipeline_terminal.png)
+
+
+## 3. Tests
+
+Testes básicos foram implementados usando `pytest` para validar:
+- requisitos de arquivos de dados e estrutura de pastas
+- lógica de execução básica do pipeline
+
+Para rodar os testes localmente:
+```bash
+pytest
+```
+
 
 <h2>Author:</h2> 
 
