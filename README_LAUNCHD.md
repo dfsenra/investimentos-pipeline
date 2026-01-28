@@ -8,13 +8,17 @@ No terminal, acesse a pasta Library/LaunchAgents
 ### Etapa 2:
 Crie o arquivo launchd:
 ```
-nano ~/Library/LaunchAgents/com.coleta.precos.plist
+nano ~/Library/LaunchAgents/com.seunome.coleta.precos.plist
 ```
+OBS: substituia "seunome" acima por um apelido, suas iniciais ou seu nome mesmo.
 
 ### Etapa 3: Código do arquivo .plist
 
 #### 3.1: Edite o "CAMINHO_DA_SUA_PASTA"
 Cole o código abaixo dentro do arquivo e substitua todos os "CAMINHO_DA_SUA_PASTA" abaixo pelo caminho correto no seu computador.
+
+#### 3.2: Edite o "seunome"
+Substitua o "seunome" do código conforme etapa 2.
 
 #### Nota 1: 
 Eu uso o anaconda, caso não use altera a linha com "<string>/opt/anaconda3/bin/python3</string>".
@@ -31,7 +35,7 @@ Caso o script não rode, verifique se o Python possui permissão de execução e
 <dict>
 
     <key>Label</key>
-    <string>com.coleta.precos</string>
+    <string>com.seunome.coleta.precos</string>
 
     <key>ProgramArguments</key>
     <array>
@@ -70,21 +74,22 @@ Caso o script não rode, verifique se o Python possui permissão de execução e
 Salve as alterações e feche o arquivo:
 ```
 control + O > salvar
+Enter
 control + X > sair
 ````
 
 ### Etapa 5:
-Carregue o arquivo. No terminal execute o código abaixo:
+Para carregar o arquivo, abra o terminal e execute o código abaixo:
 
 ```
-launchctl load ~/Library/LaunchAgents/com.coleta.precos.plist
+launchctl load ~/Library/LaunchAgents/com.seunome.coleta.precos.plist
 ```
 
 ### Etapa 6:
 Force a execução manual:
 
 ```
-launchctl kickstart -k gui/$(id -u)/com.coleta.precos
+launchctl kickstart -k gui/$(id -u)/com.seunome.coleta.precos
 ````
 
 ### Etapa 7:
@@ -117,6 +122,7 @@ nano ~/Library/LaunchAgents/com.coleta.precos.plist
 
 ```
 control + O > salvar
+Enter
 control + X > sair
 ````
 
@@ -137,7 +143,3 @@ launchctl kickstart -k gui/$(id -u)/com.coleta.precos
 Douglas Senra
 
 
-
-```python
-
-```
