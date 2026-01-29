@@ -8,15 +8,16 @@
 🚧 Este projeto está em desenvolvimento ativo.
 
 O que está sendo desenvolvido no momento:
+```bash
 -> Integração do pipeline com base de dados histórica
 -> Normalização dos dados & Benchmarking
 -> Dashboard interativo via Streamlit
 
 Próximos passos:
-X Migração para banco de dados (.db?)
+X Migração de .csv para banco de dados - TBD
 X Modelagem de séries temporais
 X Análise preditiva para suportar tomada de decisões no portfolio
-
+```
 
 # Pipeline para coleta de preços de ações, ETFs, FIIs etc no YFinance
 
