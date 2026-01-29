@@ -3,6 +3,21 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/ci.yml/badge.svg)
 
+
+## Status do Projeto
+🚧 Este projeto está em desenvolvimento ativo.
+
+O que está sendo desenvolvido no momento:
+-> Integração do pipeline com base de dados histórica
+-> Normalização dos dados & Benchmarking
+-> Dashboard interativo via Streamlit
+
+Próximos passos:
+X Migração para banco de dados (.db?)
+X Modelagem de séries temporais
+X Análise preditiva para suportar tomada de decisões no portfolio
+
+
 # Pipeline para coleta de preços de ações, ETFs, FIIs etc no YFinance
 
 ## 1. Introdução: Arquitetura e Fluxo do pipeline
