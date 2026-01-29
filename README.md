@@ -3,13 +3,12 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/ci.yml/badge.svg)
 
-## Objetivo do Projeto
+## Objetivos do Projeto
 Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
 ```
 * Coleta diária automatizada de cotação dos ativos presentes na carteira
 * Dashboard com comparativo do rendimento da carteira versus índices do mercado
 * Análise da série histórica e geração de avaliação preditiva para suportar decisões
-
 ```
 
 ## 🚧 Status do Projeto 🚧
@@ -137,18 +136,18 @@ Esse pipeline possui uma função que envia e-mail automaticamente em caso de er
 preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros, ou seja, sem spam. Caso a coleta seja
 concluída com sucesso, nada será enviado.
 Para que o e-mail seja disparado, eu utilizei uma conta gmail como remetente. Para isso será necessário criar uma
-SENHA_APP. Existem alguns tutorais na internet muitos simples mostrando como fazer isso.
+`SENHA_APP`. Existem alguns tutorais na internet muitos simples mostrando como fazer isso.
 
-Após criar a sua SENHA_APP, abra o arquivo ".env.example" com um editor de texto e substitua "SENHA_APP_DO_SEU_GMAIL" pela sua senha:
+Após criar a sua SENHA_APP, abra o arquivo `.env.example` com um editor de texto e substitua `SENHA_APP_DO_SEU_GMAIL` pela sua senha:
 ```
 EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
 
 ```
-Salve o arquivo e renomeie removendo o ".example". Deixe apenas como ".env". O arquivo ficará oculto na pasta.
-Para ler o conteúdo do arquivo oculto, abra o terminal no caminho onde o arquivo está localizado e digite "cat .env".
-Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "nano .env". Após editar, salve (Ctrl + O), pressione Enter e feche (Ctrl + X).
+Salve o arquivo e renomeie removendo o `.example`. Deixe apenas como `.env`. O arquivo ficará oculto na pasta.
+Para ler o conteúdo do arquivo oculto, abra o terminal no caminho onde o arquivo está localizado e digite `cat .env`.
+Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "nano .env". Após editar, salve (`Ctrl + O`), pressione `Enter` e feche (`Ctrl + X`).
 
-Veja abaixo um exemplo de e-mail recebido pelo pipeline:
+#### Veja abaixo um exemplo de e-mail recebido pelo pipeline:
 ![E-mail Automático](docs/images/e-mail_automatico.png)
 
 
@@ -183,27 +182,30 @@ docker compose down            #Pausar tudo
 ``` 
 
 ### 2.3: Alimentação do tickers.csv
-O pipeline inicia a sua busca através dos ativos listados dentro do arquivo "tickers.csv" que deve estar na pasta "data".
-Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio, sempre com o nome "tickers.csv".
+O pipeline inicia a sua busca através dos ativos listados dentro do arquivo `tickers.csv` que deve estar na pasta `data`.
+Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio, `sempre com o nome tickers.csv`.
 Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
 
 ### 2.4: Automatização do pipeline no MacOS - OPCIONAL
 
-Caso queira automatizar esse pipeline, siga as instruções do README_LAUNCHD.
+Caso queira automatizar esse pipeline, siga as instruções do `README_LAUNCHD`.
 Eu particularmente acho isso muito prático, pois o meu computador rodar o pipeline automaticamente todo dia
-as 18:30h, após fechamento do mercado (você pode alterar esse horário no .plist, está descrito no README_LAUNCHD). Dessa forma, a minha base de dados é alimentada automaticamente todos os dias com as cotações do dia anterior, sem que eu precise fazer nada.
+as 18:30h, após fechamento do mercado (você pode alterar esse horário no `.plist`, está descrito no README_LAUNCHD). Dessa forma, a minha base de dados é alimentada automaticamente todos os dias com as cotações do dia anterior, sem que eu precise fazer nada.
 
-Caso prefira rodar o código manualmente pelo terminal, basta executar o arquivo "coleta_precos.py" via Python.
-Quando executado manualmente, o pipeline mostra o progresso de execução em tempo real, com todos os estágios relevantes na tela:
+Caso prefira rodar o código manualmente pelo terminal, basta executar o arquivo `coleta_precos.py` via Python.
+Quando executado manualmente, o pipeline mostra o progresso de execução em tempo real, com todos os estágios relevantes na tela.
 
+#### Tela de progresso - Execução manual no terminal
 ![Terminal progress](docs/images/pipeline_terminal.png)
 
 
-## 3. Tests
+## 3. Testes
 
 Testes básicos foram implementados usando `pytest` para validar:
 - requisitos de arquivos de dados e estrutura de pastas
 - lógica de execução básica do pipeline
+
+Este testes estão integrados ao Git actions, portanto não precisam ser executados no seu ambiente.
 
 Para rodar os testes localmente:
 ```bash
