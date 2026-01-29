@@ -3,17 +3,26 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![CI](https://github.com/dfsenra/investimentos-pipeline/actions/workflows/ci.yml/badge.svg)
 
+## Objetivo do Projeto
+Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
+```
+* Coleta diária automatizada de cotação dos ativos presentes na carteira
+* Dashboard com comparativo do rendimento da carteira versus índices do mercado (CDI & Ibovespa)
+* Análise da série histórica e geração de avaliação preditiva para suportar decisões de compra/venda/hold
+```
 
-## Status do Projeto
-🚧 Este projeto está em desenvolvimento ativo.
+## 🚧 Status do Projeto 🚧
+Este projeto está em desenvolvimento ativo.
 
 O que está sendo desenvolvido no momento:
-```bash
+```
 -> Integração do pipeline com base de dados histórica
 -> Normalização dos dados & Benchmarking
 -> Dashboard interativo via Streamlit
+```
 
 Próximos passos:
+```
 X Migração de .csv para banco de dados - TBD
 X Modelagem de séries temporais
 X Análise preditiva para suportar tomada de decisões no portfolio
