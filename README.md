@@ -7,8 +7,9 @@
 Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
 ```
 * Coleta diária automatizada de cotação dos ativos presentes na carteira
-* Dashboard com comparativo do rendimento da carteira versus índices do mercado (CDI & Ibovespa)
-* Análise da série histórica e geração de avaliação preditiva para suportar decisões de compra/venda/hold
+* Dashboard com comparativo do rendimento da carteira versus índices do mercado
+* Análise da série histórica e geração de avaliação preditiva para suportar decisões
+
 ```
 
 ## 🚧 Status do Projeto 🚧
