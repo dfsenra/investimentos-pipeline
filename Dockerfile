@@ -3,6 +3,8 @@ FROM python:3.12-slim
 # Diretório de trabalho dentro do container
 WORKDIR /app
 
+ENV PYTHONPATH=/app
+
 # Evita arquivos .pyc e garante logs no stdout
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

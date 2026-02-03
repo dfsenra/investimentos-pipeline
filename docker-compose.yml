@@ -1,6 +1,30 @@
-version: "3.9"
 
 services:
+  db:
+    image: postgres:16
+    container_name: investimentos_db
+    environment:
+      POSTGRES_DB: investimentos
+      POSTGRES_USER: invest_user
+      POSTGRES_PASSWORD: invest_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pipeline:
+    build: .
+    container_name: investimentos_pipeline
+    depends_on:
+      - db
+    env_file:
+      - scripts/.env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/data
+
+    command: python scripts/bootstrap.py
+
   dashboard:
     build: .
     container_name: investimentos-dashboard
@@ -8,6 +32,9 @@ services:
       - "8501:8501"
     env_file:
       - scripts/.env
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+    depends_on:
+      - db
+    command: streamlit run dashboard/app.py
+
+volumes:
+  pgdata:

@@ -1,56 +1,39 @@
+# Módulo com execução manual. Tentei automatizar via cron no docker, mas tive problemas.
+# Deixei como manual para o usuário. Ao final o preço do portfólio atualizado (chama o módulo calcula_portfolio.py)
+
 import yfinance as yf
 import pandas as pd
-import numpy as np
-from datetime import date, datetime
+from datetime import date
 import logging
 import os
-import requests
 import time
 import smtplib
 import sys
 from email.message import EmailMessage
 from dotenv import load_dotenv
-import statistics
+from sqlalchemy import text
+from dashboard.db import get_engine
 
-inicio_execucao = time.time()
 
-# ===================================================================================================
-# Função User Interface silencioso (prints ignorados no launchd)
-# ===================================================================================================
-MODO_INTERATIVO = sys.stdout.isatty()
+# =====================================================================================
+# Configuração básica
+# =====================================================================================
+load_dotenv()
 
-def print_ui(msg):
-    if MODO_INTERATIVO:
-        print(msg)
+engine = get_engine()
 
-# ===================================================================================================
-# Função de Progresso - Feedback visual no terminal
-# ===================================================================================================
-def progresso(atual, total, prefixo="", largura=30):
-    if not MODO_INTERATIVO:
-        return
-    percent = atual / total
-    preenchido = int(largura * percent)
-    barra = "█" * preenchido + "░" * (largura - preenchido)
-    print(f"\r{prefixo} {barra} {int(percent*100)}% ({atual}/{total})", end="")
-    if atual == total:
-        print()   #quebra linha final
+LOG_DIR = "/app/logs"
+os.makedirs(LOG_DIR, exist_ok=True)
 
-# ===================================================================================================
-# Configuração de e-mail (autenticação via .env)
-# ===================================================================================================
-# Crie um arquivo .env no mesmo local do script Python com o seguinte conteúdo:
-# EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL (substituia pela senha app do seu gmail)
-load_dotenv(dotenv_path="/Users/dfsenra/Documents/2. Documentos/Finanças/Investimentos/scripts/.env")
+logging.basicConfig(
+    filename=f"{LOG_DIR}/coleta.log",
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
 
 EMAIL_SENHA = os.getenv("EMAIL_SENHA_APP")
-if not EMAIL_SENHA:
-    raise RuntimeError("Defina EMAIL_SENHA_APP no arquivo .env")
-
-EMAIL_REMETENTE = "cervejariagrajau@gmail.com"
-EMAIL_DESTINO = "dfsenra@gmail.com"
-SMTP_SERVIDOR = "smtp.gmail.com"
-SMTP_PORTA = 587
+EMAIL_REMETENTE = "cervejariagrajau@gmail.com"          # gente, eu faço cerveja em casa e esse é o nome da minha
+EMAIL_DESTINO = "dfsenra@gmail.com"                     # cervejaria kkkkkkk     
 
 def enviar_alerta(assunto, corpo):
     msg = EmailMessage()
@@ -59,202 +42,100 @@ def enviar_alerta(assunto, corpo):
     msg["Subject"] = assunto
     msg.set_content(corpo)
 
-    with smtplib.SMTP(SMTP_SERVIDOR, SMTP_PORTA) as server:
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(EMAIL_REMETENTE, EMAIL_SENHA)
         server.send_message(msg)
 
-# ===================================================================================================
-# Função para filtrar dividendos de FIIs
-# ===================================================================================================
-def validar_fechamento_por_mediana(df, ticker):
-    """
-    Valida se o fechamento do dia é um outlier com base nos retornos diários.
-    Retorna (fechamento, erro)
-    """
-
-    try:
-        fechamento = df["Close"].iloc[-1]
-
-        # Histórico mínimo
-        if len(df) < 30:
-            return fechamento, None  # histórico insuficiente → aceita
-
-        # Retornos diários
-        retornos = df["Close"].pct_change().dropna()
-
-        # Poucos retornos válidos
-        if len(retornos) < 20:
-            return fechamento, None
-
-        media = retornos.mean()
-        desvio = retornos.std()
-
-        # Volatilidade muito baixa → estatística não confiável
-        if desvio < 0.002:  # ~0.2% ao dia
-            return fechamento, None
-
-        retorno_dia = retornos.iloc[-1]
-        z_score = abs((retorno_dia - media) / desvio)
-
-        # Limite conservador
-        if z_score > 6:
-            return None, (
-                f"Retorno diário fora do padrão histórico "
-                f"(z={z_score:.2f}, retorno={retorno_dia:.2%})"
-            )
-
-        return fechamento, None
-
-    except Exception as e:
-        return None, f"Erro na validação estatística: {e}"
-
-# ===================================================================================================
-# Caminhos
-# ===================================================================================================
-TICKERS_PATH = "../data/tickers.csv"
-OUTPUT_PATH = "../data/precos_fechamento.csv"
-CHECKPOINT_DIR = "../data/checkpoints"
-LOG_DIR = "/Users/dfsenra/Documents/2. Documentos/Finanças/Investimentos/logs"
-LOG_FILE = f"{LOG_DIR}/coleta.log"
-
-os.makedirs(CHECKPOINT_DIR, exist_ok=True)
-os.makedirs(LOG_DIR, exist_ok=True)
-
-# ===================================================================================================
-# Logging
-# ===================================================================================================
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
-)
-
-logging.info("==== Início da coleta de preços ====")
-print_ui("▶ Iniciando coleta de preços")
-
-# ===================================================================================================
+# =====================================================================================
 # Leitura dos tickers
-# ===================================================================================================
-tickers = pd.read_csv(TICKERS_PATH)["ticker"].tolist()
-total = len(tickers)
+# =====================================================================================
+tickers = pd.read_csv("/data/tickers.csv")["ticker"].tolist()
 
-print_ui(f"✔ Tickes carregados ({total} ativos)")
-
-registros = []
 ativos_descartados = []
 
-print_ui("\n▶ Processamento individual dos tickers com time sleep (15s)")
+# =====================================================================================
+# Garante tabelas criadas para não quebrar o dashboard
+# =====================================================================================
+from sqlalchemy import text
 
-# ===================================================================================================
-# Coleta de preços - Ticker por ticker
-# ===================================================================================================
-for i, ticker in enumerate(tickers):
-    try:
-        logging.info(f"Processando {ticker}")
+with engine.begin() as conn:
+    with open("/app/scripts/sql/schema.sql") as f:
+        conn.execute(text(f.read()))
 
-        df = yf.Ticker(ticker).history(
-            period="3mo",
-            auto_adjust=False,
-            actions=False
+# =====================================================================================
+# Garante ativos no banco
+# =====================================================================================
+with engine.begin() as conn:
+    for ticker in tickers:
+        conn.execute(
+            text("""
+                INSERT INTO assets (ticker)
+                VALUES (:ticker)
+                ON CONFLICT (ticker) DO NOTHING
+            """),
+            {"ticker": ticker}
         )
 
-        # Remove candle do dia atual
+# =====================================================================================
+# Coleta de preços
+# =====================================================================================
+for ticker in tickers:
+    try:
+        logging.info(f"Coletando {ticker}")
+
+        df = yf.Ticker(ticker).history(period="3mo", auto_adjust=False)
         df = df[df.index.date < date.today()]
 
         if df.empty:
-            raise ValueError("Sem dados válidos após filtros")
-            print_ui(f"{ticker}: Sem dados válidos após filtros")
+            raise ValueError("Sem dados")
 
-        # ============================================================================
-        # Validação da cotação do ativo por mediana (evita coletar preço do dividendo)
-        # ============================================================================
-        fechamento, erro = validar_fechamento_por_mediana(df, ticker)
-
-        if erro:
-            logging.error(f"{ticker}: descartado - {erro}")
-            ativos_descartados.append(f"{ticker} | motivo: {erro}")
-            print_ui(f"{ticker}: descartado - {erro}")
-            continue
-
+        fechamento = round(float(df["Close"].iloc[-1]), 2)
         data_fechamento = df.index[-1].date()
 
-        #Registra os ativos com valores válidos
-        registros.append({
-            "data": data_fechamento,
-            "ticker": ticker,
-            "fechamento": round(fechamento, 2)
-        })
+        with engine.begin() as conn:
+            asset_id = conn.execute(
+                text("SELECT asset_id FROM assets WHERE ticker=:t"),
+                {"t": ticker}
+            ).scalar()
+
+            conn.execute(
+                text("""
+                    INSERT INTO prices (asset_id, data, close_price, source)
+                    VALUES (:asset_id, :data, :price, 'yfinance')
+                    ON CONFLICT (asset_id, data) DO NOTHING
+                """),
+                {
+                    "asset_id": asset_id,
+                    "data": data_fechamento,
+                    "price": fechamento
+                }
+            )
+
+        time.sleep(15)
 
     except Exception as e:
-        msg = str(e)
-        logging.error(f"{ticker}: descartado - {msg}")
-        ativos_descartados.append(f"{ticker} | motivo: {msg}")
-        print_ui(f"{ticker}: descartado - {msg}")
+        ativos_descartados.append(f"{ticker}: {e}")
+        logging.error(f"{ticker} - {e}")
 
-    progresso(i + 1, total, prefixo="Processando")
-
-    # =================================
-    # Atraso agressivo anti-rate-limit
-    # =================================
-    time.sleep(15)
-
-# ===================================================================================================
-# Escrita CSV + Checkpoint
-# ===================================================================================================
-if registros:
-    print_ui("\n▶ Salvando preços")
-    df_out = pd.DataFrame(registros)
-
-    df_out.to_csv(
-        OUTPUT_PATH,
-        index=False,
-        sep=";",
-        decimal=",",
-        encoding="utf-8-sig"
-    )
-
-    data_execucao = datetime.now().strftime("%Y-%m-%d")
-    checkpoint_path = f"{CHECKPOINT_DIR}/{data_execucao}_precos.csv"
-
-    if not os.path.exists(checkpoint_path):
-        df_out.to_csv(
-            checkpoint_path,
-            index=False,
-            sep=";",
-            decimal=",",
-            encoding="utf-8-sig"
-        )
-
-    logging.info(f"Arquivo salvo com {len(registros)} registros")
-    logging.info("==== Fim da coleta de preços ====")
-    print_ui("✔ CSV principal salvo")
-    print_ui("✔ Checkpoint diário salvo")
-
-# ===================================================================================================
-# Envio de alerta via e-mail, somente se houver erros
-# ===================================================================================================
+# =====================================================================================
+# Alerta
+# =====================================================================================
 if ativos_descartados:
-    corpo = "Os seguintes ativos foram descartados na coleta:\n\n"
-    corpo += "\n".join(ativos_descartados)
-
     enviar_alerta(
-        assunto="Alerta – Ativos descartados na coleta de preços",
-        corpo=corpo
+        "Alerta – Falha na coleta",
+        "\n".join(ativos_descartados)
     )
 
-    logging.warning("Alerta por e-mail enviado")
-    print_ui(f"⚠ {len(ativos_descartados)} ativo(s) descartado(s) — Sugestão: atualize a base csv manutalmente")
+# =====================================================================================
+# Atualiza o preço médio da carteira
+# =====================================================================================
+#os.system("python /app/scripts/calcula_portfolio.py")
+import subprocess
 
-# ===================================================================================================
-# Resumo Executivo
-# ===================================================================================================
-tempo_total = time.time() - inicio_execucao
-logging.info(f"Tempo total de execução: {tempo_total}")
+subprocess.run(
+    ["python", "/app/scripts/calcula_portfolio.py"],
+    check=True
+)
 
-print_ui("\n================ RESUMO DA EXECUÇÃO ================")
-print_ui(f"✔ Ativos coletados : {len(registros)}")
-print_ui(f"Ativos descartados: {len(ativos_descartados)}")
-print_ui(f"Tempo total       : {tempo_total:.1f} segundos")
-print_ui("===================================================")
 

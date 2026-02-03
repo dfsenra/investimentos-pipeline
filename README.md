@@ -6,7 +6,7 @@
 ## Objetivos do Projeto
 Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
 ```
-* Coleta diária automatizada de cotação dos ativos presentes na carteira
+* Coleta diária de cotação dos ativos presentes na carteira (Manual/Acionada pelo usuário)
 * Dashboard com comparativo do rendimento da carteira versus índices do mercado
 * Análise da série histórica e geração de avaliação preditiva para suportar decisões
 ```
@@ -16,14 +16,15 @@ Este projeto está em desenvolvimento ativo.
 
 O que está sendo desenvolvido no momento:
 ```
--> Integração do pipeline com base de dados histórica
--> Normalização dos dados & Benchmarking
--> Dashboard interativo via Streamlit
+-> Integração do pipeline com base de dados histórica - 100%
+-> Normalização dos dados & Benchmarking - 100%
+-> Migração de .csv para banco de dados - 100%
+-> Dashboard interativo via Streamlit - 100%
+-> Atualizar README.md - 0%
 ```
 
 Próximos passos:
 ```
-X Migração de .csv para banco de dados - TBD
 X Modelagem de séries temporais
 X Análise preditiva para suportar tomada de decisões no portfolio
 ```
@@ -46,7 +47,7 @@ Investimentos/
 │       ├── e-mail_automatico.png
 │       └── pipeline_terminal.png
 ├── data/
-│   ├── tickers.csv             # mantenha esse arquivo com todos os ativos que deseja coletar preços.
+│   ├── tickers.csv             # Liste os ativos da sua carteira
 │   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
 │   ├── historical/
 │   │   └── precos_historicos.csv

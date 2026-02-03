@@ -1,134 +1,123 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+from queries import PRICES_QUERY, RETURNS_QUERY, CARTEIRA_RESUMO_QUERY
+from dashboard.db import get_engine
 
-st.set_page_config(page_title="Financial Dashboard", layout="wide")
-
-# ======================================================
-# Carregando dados
-# ======================================================
-@st.cache_data
-def load_data():
-    df = pd.read_csv("data/historical/precos_historicos.csv", parse_dates=["date"])
-    
-    df = df.dropna(subset=["date", "close", "ticker"])
-    df["close"] = pd.to_numeric(df["close"], errors="coerce")
-    df = df.dropna(subset=["close"])
-
-    return df
-
-df = load_data()
-
-st.title("Financial Asset Explorer")
-
-
-# ======================================================
-# Sidebar - filtros
-# ======================================================
-st.sidebar.header("Filters")
-
-ticker = st.sidebar.selectbox(
-    "Select ticker",
-    sorted(df["ticker"].dropna().astype(str).unique())
+st.set_page_config(
+    page_title="AI Portfolio",
+    page_icon="💰",
+    layout="wide"
 )
 
-period = st.sidebar.selectbox(
-    "Select period",
-    [
-        "Last 1 month",
-        "Last 3 months",
-        "Last 6 months",
-        "YTD",
-        "Last 1 year",
-        "Last 5 years"
-    ]
+engine = get_engine()
+
+st.title("AI Portfolio - Invista com inteligência")
+st.caption("Este modelo não gera recomendações de investimentos. Ele fornece dados para você tomar as melhores decisões para a sua carteira.")
+
+# =============================
+# Dados
+# =============================
+df_prices = pd.read_sql(PRICES_QUERY, engine)
+df_returns = pd.read_sql(RETURNS_QUERY, engine)
+
+# =============================
+# Sidebar
+# =============================
+st.sidebar.title("Aqui você encontra:")
+
+st.sidebar.caption("⏺ Benchmark com índices do mercado")
+st.sidebar.caption("⏺ Análise preditiva")
+st.sidebar.caption("⏺ Performance da sua carteira")
+
+st.sidebar.markdown("---")
+
+ativos = sorted(df_prices["ticker"].unique())
+
+ativos_selecionados = st.sidebar.multiselect(
+    "Ativos da sua carteira",
+    options=ativos,
+    help="Estes são os ativos que você registrou no tickers.csv",
+    default=[]
 )
 
-def resolve_period(period, df):
-    end = df["date"].max()
-
-    if period == "Last 1 month":
-        start = end - pd.DateOffset(months=1)
-    elif period == "Last 3 months":
-        start = end - pd.DateOffset(months=3)
-    elif period == "Last 6 months":
-        start = end - pd.DateOffset(months=6)
-    elif period == "YTD":
-        start = pd.Timestamp(end.year, 1, 1)
-    elif period == "Last 1 year":
-        start = end - pd.DateOffset(years=1)
-    else:
-        start = end - pd.DateOffset(years=5)
-
-    return start, end
-
-def normalize_series(series):
-    return (series / series.iloc[0]) * 100
-
-benchmarks = st.sidebar.multiselect(
-    "Select benchmark",
-    ["Ibovespa", "CDI"]
+indices_selecionados = st.sidebar.multiselect(
+    "Índices de mercado",
+    options=["^GSPC"],
+    help="GSPC = S&P500",  # CDI e IBOV entram depois
+    default=[]
 )
 
-# ======================================================
-# Datas - filtros
-# ======================================================
-start_date, end_date = resolve_period(period, df)
+st.sidebar.markdown("---")
+st.sidebar.link_button("✉️ Olá recruiter, vamos conversar!", "mailto:dfsenra@gmail.com")
+st.sidebar.markdown("👨‍💻 [Meu Linkedin](https://www.linkedin.com/in/dfsenra/)")
 
-filtered = (
-    df[df["ticker"] == ticker]
-    .loc[lambda x: (x["date"] >= start_date) & (x["date"] <= end_date)]
-    .sort_values("date")
+chart_df = pd.DataFrame()
+
+# =============================
+# Carteira (sempre presente)
+# =============================
+carteira = (
+    df_returns.groupby("data")["retorno_diario"]
+    .mean()
+    .dropna()
 )
 
-if filtered.empty or len(filtered) < 2:
-    st.warning("Not enough data for the selected filters.")
+chart_df["Carteira"] = carteira
+
+# =============================
+# Ativos selecionados
+# =============================
+for ticker in ativos_selecionados:
+    serie = (
+        df_returns[df_returns["ticker"] == ticker]
+        .set_index("data")["retorno_diario"]
+        .dropna()
+    )
+    chart_df[ticker] = serie
+
+# =============================
+# Índices selecionados
+# =============================
+for idx in indices_selecionados:                       # Será travado apenas opção por vez devido a unidades diferentes (Pontos/R$/Rentabilidade)
+    serie = (
+        df_returns[df_returns["ticker"] == idx]
+        .set_index("data")["retorno_diario"]
+        .dropna()
+    )
+    chart_df[idx] = serie
+
+chart_df = chart_df.sort_index()
+
+# =============================
+# Métricas no topo
+# =============================
+if chart_df.empty or len(chart_df.columns) == 0:
+    st.info("Selecione ao menos um ativo ou índice.")  # isso era uma segurança que não precisa mais, porém deixei no código
     st.stop()
 
-# ======================================================
-# Séries normalizadas
-# ======================================================
-price_series = filtered.set_index("date")["close"]
-price_norm = normalize_series(price_series)
+st.markdown("### Rentabilidade acumulada")             # Todos os cálculos de rentabilidade são feitos em cima do preço (R$)
 
-# ======================================================
-# KPIs
-# ======================================================
-returns = price_series.pct_change().dropna()
+cols = st.columns(len(chart_df.columns))
 
-col1, col2, col3, col4 = st.columns(4)
+for col_ui, col in zip(cols, chart_df.columns):
+    rent = (1 + chart_df[col].dropna()).prod() - 1
+    col_ui.metric(col, f"{rent:.2%}")
 
-col1.metric("Start (Base)", "100")
-col2.metric("End", f"{price_norm.iloc[-1]:.2f}")
+# =============================
+# Normalização para gráfico
+# =============================
+normalized_df = pd.DataFrame(index=chart_df.index)          # Normalizei os dados para reduzir ruídos, ficar mais legível
+                                                            # Todos os preços estão na base 100
+for col in chart_df.columns:
+    s = chart_df[col].dropna()
 
-total_return = price_norm.iloc[-1] - 100
-col3.metric("Total Return", f"{total_return:.2f}%")
+    if len(s) == 0:
+        continue
 
-volatility = returns.std() * np.sqrt(252) * 100
-col4.metric("Volatility", f"{volatility:.2f}%")
+    base = (1 + s).cumprod()
+    base = base / base.iloc[0] * 100
 
-# ======================================================
-# Benchmark - Ibovespa
-# ======================================================
-st.subheader("Performance (Base 100)")
+    normalized_df[col] = base
 
-plot_df = pd.DataFrame({
-    ticker: price_norm
-})
-
-if "Ibovespa" in benchmarks:
-    ibov = (
-        df[df["ticker"] == "BOVA11.SA"]
-        .loc[lambda x: (x["date"] >= start_date) & (x["date"] <= end_date)]
-        .sort_values("date")
-        .set_index("date")["close"]
-    )
-
-    if len(ibov) >= 2:
-        plot_df["Ibovespa"] = normalize_series(ibov)
-
-# ============================
-# Plot
-# ============================
-st.line_chart(plot_df)
+st.line_chart(normalized_df)
 
