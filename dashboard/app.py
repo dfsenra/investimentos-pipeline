@@ -13,6 +13,8 @@ from queries import (
 )
 from dashboard.db import get_engine
 
+pd.set_option('future.no_silent_downcasting', True)
+
 # 1. Configuração da página
 st.set_page_config(page_title="AI Portfolio", page_icon="💰", layout="wide")
 
