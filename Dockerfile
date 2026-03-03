@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+#Mantenedor da imagem
+LABEL maintainer="Douglas Senra <dfsenra@gmail.com>"
+
 # Diretório de trabalho dentro do container
 WORKDIR /app
 
@@ -15,6 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia todo o projeto
 COPY . .
+# Garante CSV na pasta /data
+COPY data/ /data/
+
 
 # Streamlit usa essa porta por padrão
 EXPOSE 8501

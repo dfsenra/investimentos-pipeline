@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:16
@@ -20,9 +19,10 @@ services:
     env_file:
       - scripts/.env
     volumes:
+      #- logs_volume:/app/logs      Antes os volumes estava configurados assim por problema no Mount. fikeWatcherType parece que resolveu 100%
+      #- data_volume:/data          Vou monitorar, depois apago essas linhas
+      - ./data:/app/data
       - ./logs:/app/logs
-      - ./data:/data
-
     command: python scripts/bootstrap.py
 
   dashboard:
@@ -34,7 +34,14 @@ services:
       - scripts/.env
     depends_on:
       - db
-    command: streamlit run dashboard/app.py
+    volumes:
+      #- logs_volume:/app/logs       Antes os volumes estava configurados assim por problema no Mount. fikeWatcherType parece que resolveu 100%
+      #- data_volume:/data           Vou monitorar, depois apago essas linhas
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: streamlit run dashboard/app.py --server.fileWatcherType none
 
 volumes:
   pgdata:
+  #data_volume:
+  #logs_volume:

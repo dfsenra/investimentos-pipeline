@@ -22,7 +22,4 @@ __pycache__/
 *.pyc
 
 #===== Arquivos pessoais ====
-Carteira Finclass.xlsm
-~$Carteira Finclass.xlsm
-Invest_Gastos Acumulado.xlsx
 scripts/anotacoes.py

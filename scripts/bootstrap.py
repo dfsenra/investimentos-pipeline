@@ -13,6 +13,7 @@ from scripts.backfill_historico import run_backfill
 
 SCHEMA_PATH = "/app/scripts/sql/schema.sql"
 VIEWS_PATH = "/app/scripts/sql/views.sql"
+INDICES_PATH = "/app/data/indices.csv"
 
 def wait_for_db(engine, retries=15, delay=3):
     for i in range(retries):

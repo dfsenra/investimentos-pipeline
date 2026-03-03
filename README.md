@@ -6,9 +6,12 @@
 ## Objetivos do Projeto
 Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
 ```
-* Coleta diária de cotação dos ativos presentes na carteira (Manual/Acionada pelo usuário)
-* Dashboard com comparativo do rendimento da carteira versus índices do mercado
-* Análise da série histórica e geração de avaliação preditiva para suportar decisões
+* Interface 100% via Dashboard (Streamlit <-> SQL)
+* Pipeline para coleta de cotações dos ativos da carteira do cliente
+* Dashboard com rendimentos, evolução patrimonial e índices do mercado
+* Histórico de todas as transações salvas em banco de dados
+* Análise da série histórica e avaliação preditiva para suportar decisões
+* Agente de IA especializado em finanças
 ```
 
 ## 🚧 Status do Projeto 🚧
@@ -20,16 +23,19 @@ O que está sendo desenvolvido no momento:
 -> Normalização dos dados & Benchmarking - 100%
 -> Migração de .csv para banco de dados - 100%
 -> Dashboard interativo via Streamlit - 100%
--> Atualizar README.md - 0%
+-> Estatísticas da carteira & Gráficos - 100%
+-> Log de registros - 100%
+-> Atualizar README.md - 80%
 ```
 
 Próximos passos:
 ```
 X Modelagem de séries temporais
 X Análise preditiva para suportar tomada de decisões no portfolio
+X Agente de IA
 ```
 
-# Pipeline para coleta de preços de ações, ETFs, FIIs etc no YFinance
+# Pipeline para coleta de preços de ativos no YFinance
 
 ## 1. Introdução: Arquitetura e Fluxo do pipeline
 
@@ -38,39 +44,42 @@ Escolha um local para extrair as pastas conforme estrutura abaixo:
 ```    
 Investimentos/
 │
-├── dashboard/
-│   ├── app.py                  
-│
+├── dashboard
+│   ├── __init__.py
+│   ├── app.py
+│   ├── db.py
+│   └── queries.py
 │
 ├── docs/   
 │   └── images/
-│       ├── e-mail_automatico.png
 │       └── pipeline_terminal.png
 ├── data/
-│   ├── tickers.csv             # Liste os ativos da sua carteira
-│   ├── precos_fechamento.csv.  # gerado automaticamente pelo pipeline
-│   ├── historical/
-│   │   └── precos_historicos.csv
-│   └── checkpoints/
-│       └── .gitkeep
+│   ├── historical_prices.csv.  # Gerado automaticamente
+│   ├── indices.csv.            # Base com os indices de mercado
+│   └── portfolio.daily.csv     # Gerado automaticamente
 │
 ├── logs/
 │   └── .gitkeep                # gerados automaticamente pelo pipeline
 │
 ├── scripts/
-│   ├── coleta_precos.py
+│   ├── .env.example            # Renomeie para .env 
+│   ├── __init__.py
 │   ├── backfill_historico.py
-│   └── .env.example            # edite a sua SENHA_APP e renomeie para .env 
+│   ├── bootstrap.py
+│   ├── calcula_portfolio.py
+│   ├── ingest_portfolio.py
+│   └── sql
+│       ├── schema.sql
+│       └── views.sql
 │
 ├── tests/
 │   ├── test_data_files.py
 │   └── test_pipeline_basic.py
 │
-│
 │── README.md
-├── README_LAUNCHD.md
 ├── pyproject.toml
 ├── requirements.txt
+├── requirements-dev.txt
 ├── Dockerfile
 ├── docker-compose.yml
 └── .gitignore
@@ -80,80 +89,60 @@ Investimentos/
 
 ```
           ┌───────────────┐
-          │ tickers.csv   │
+          │   Streamlit   │
           │ (input manual)│
           └───────┬───────┘
                   │
                   ▼
-        ┌─────────────────────┐
-        │ coleta_precos.py    │
-        │                     │
-        │ • leitura tickers   │
-        │ • coleta yfinance   │
-        │ • delay anti-rate   │
-        │ • validação estat.  │
-        │ • logging           │
-        │ • checkpoint        │
-        │ • alerta por e-mail │
-        └───────┬─────────────┘
+        ┌───────────────────────┐
+        │    bootstrap.py       │
+        │                       │
+        │ • leitura tickers     │
+        │ • coleta yfinance     │
+        │ • delay anti-rate     │
+        │ • validações          │
+        │ • logging             │
+        │ • gráficos & Stats.   │
+        │ • Histórico operações │
+        └───────┬───────────────┘
                 │
         ┌───────┴───────────┐
         │                   │
         ▼                   ▼
 ┌──────────────────┐   ┌────────────────────┐
-│ precos_fecham.   │   │ checkpoints diários│
-│ (estado atual)   │   │ (auditoria/hist.)  │
+│  arquivos .csv   │   │        Logs        │
+│  (uso opcional)  │   │ (auditoria/hist.)  │
 └──────────────────┘   └────────────────────┘
                 │
                 ▼
         ┌─────────────────┐
-        │ Excel / Power   │
-        │ Query / Dash    │
+        │   Excel / Etc   │
+        │  (uso opcional) │
         └─────────────────┘
 ```
 
 ### 1.3 Fluxo de execução do pipeline
 
 ```
-1. launchd dispara automaticamente, mesmo com tela apagada/bloqueada (18:30)
-2. Python inicia
-3. tickers.csv é lido
-4. Loop ticker a ticker
-   ├── request yfinance
-   ├── sleep 15s
-   ├── filtro estatístico
+1. Bootstrap dispara automaticamente
+2. Loop ticker a ticker
+   ├── validações
+   ├── request yfinance (batch)
+   ├── sleep 0.5s (no limit rate)
    ├── log sucesso / descarte
-5. precos_fechamentos.csv sobrescrito
-6. checkpoint diário criado (se não existir)
-7. e-mail enviado se houver descartes
-8. logs finalizados
+   └── ingestão no db
+3. historical_prices.csv sobrescrito
+4. logs finalizados
 ```
 
 ## 2. Preparando o seu ambiente para o pipeline
 
-### 2.1: Criação do arquivo .env
+### 2.1: Renomeie o arquivo .example.env
 
-Esse pipeline possui uma função que envia e-mail automaticamente em caso de erros durante a coleta de 
-preços dos ativos. Não se preocupe, os e-mails são enviados somente quando ocorrem erros, ou seja, sem spam. Caso a coleta seja
-concluída com sucesso, nada será enviado.
-Para que o e-mail seja disparado, eu utilizei uma conta gmail como remetente. Para isso será necessário criar uma
-`SENHA_APP`. Existem alguns tutorais na internet muitos simples mostrando como fazer isso.
-
-Após criar a sua SENHA_APP, abra o arquivo `.env.example` com um editor de texto e substitua `SENHA_APP_DO_SEU_GMAIL` pela sua senha:
-```
-EMAIL_SENHA_APP=SENHA_APP_DO_SEU_GMAIL
-
-```
-Salve o arquivo e renomeie removendo o `.example`. Deixe apenas como `.env`. O arquivo ficará oculto na pasta.
+O arquivo .example.env contêm as credenciais para configuração do banco de dados postreSQL.
+Renomeie o arquivo removendo o `.example`, deixando apenas como `.env`. O arquivo ficará oculto na pasta.
 Para ler o conteúdo do arquivo oculto, abra o terminal no caminho onde o arquivo está localizado e digite `cat .env`.
 Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "nano .env". Após editar, salve (`Ctrl + O`), pressione `Enter` e feche (`Ctrl + X`).
-
-#### Veja abaixo um exemplo de e-mail recebido pelo pipeline:
-![E-mail Automático](docs/images/e-mail_automatico.png)
-
-
-#### Nota3:
-Caso queira compartilhar o projeto, você nunca deve versionar o arquivo .env. O repositório contêm apenas o arquivo .env.example como referência.
 
 ### 2.2: Criação do ambiente virtual via Docker
 
@@ -161,44 +150,38 @@ Abra o Docker (caso não tenha, faça o download/instalação antes de seguir).
 
 Abra o terminal na raiz do projeto e digite o seguinte comando:
 ```bash
-docker compose up --build -d
+docker compose up --build
 ```
-Serão criados uma imagem e um container para o projeto. Pronto, agora a aplicação terá um ambiente dedicado para ela!
+Serão criados uma imagem e três containers para o projeto. 
+#### Tela de progresso - Execução manual no terminal
+![Terminal progress](docs/images/pipeline_terminal.png)
+
+Pronto, agora a aplicação terá um ambiente dedicado para ela!
 O dashboard ficará disponível em:
 
 ```bash
 http://localhost:8501
 ```
 
-Quando finalizar o uso da aplicação, rode o seguinte código no terminal da pasta raiz do projeto:
+Quando finalizar o uso da aplicação, acesse o terminal da pasta raiz do projeto e execute:
 ```bash
-docker compose down
+Ctrl + C                # Stop nos containers
+docker compose down     # Caro queira remover os containers
 ```
 
-#### Nota4:
-A partir de agora a imagem e container já estão criados no Docker e não precisam ser recriados, mesmo que os códigos sejam alterados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
+#### Nota1:
+Os dados ficam salvos dentro de um volume no Docker, então mesmo que os containers sejam removidos, ao retornar para a aplicação os seus dados estarão disponíveis.
+
+#### Nota2:
+A partir de agora a imagem e container já estão criados no Docker e não precisam ser recriados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
 ```bash
-docker compose up --build -d   #Iniciar a imagem/container e rodar a aplicação
-docker compose down            #Pausar tudo
+docker compose up              # Iniciar a imagem/container e rodar a aplicação
+Ctrl + C                       # Stop nos containers
+docker compose down            # Pausar tudo
 ``` 
 
-### 2.3: Alimentação do tickers.csv
-O pipeline inicia a sua busca através dos ativos listados dentro do arquivo `tickers.csv` que deve estar na pasta `data`.
-Portanto, para a sua rotina, mantenha esse arquivo atualizado com os ativos do seu portfolio, `sempre com o nome tickers.csv`.
-Essa atualização pode ser manual ou automatizada a depender de como você faz a sua gestão financeira.
-
-### 2.4: Automatização do pipeline no MacOS - OPCIONAL
-
-Caso queira automatizar esse pipeline, siga as instruções do `README_LAUNCHD`.
-Eu particularmente acho isso muito prático, pois o meu computador rodar o pipeline automaticamente todo dia
-as 18:30h, após fechamento do mercado (você pode alterar esse horário no `.plist`, está descrito no README_LAUNCHD). Dessa forma, a minha base de dados é alimentada automaticamente todos os dias com as cotações do dia anterior, sem que eu precise fazer nada.
-
-Caso prefira rodar o código manualmente pelo terminal, basta executar o arquivo `coleta_precos.py` via Python.
-Quando executado manualmente, o pipeline mostra o progresso de execução em tempo real, com todos os estágios relevantes na tela.
-
-#### Tela de progresso - Execução manual no terminal
-![Terminal progress](docs/images/pipeline_terminal.png)
-
+### 2.3: Alimentação do indices.csv
+Para índices de mercado o pipeline consulta o arquivo indices.csv. Caso queira incluir outros benckmark, edite este arquivo.
 
 ## 3. Testes
 
