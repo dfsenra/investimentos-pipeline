@@ -1,25 +1,25 @@
-CREATE TABLE IF NOT EXISTS assets (
-    asset_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS ativos (
+    id_ativo SERIAL PRIMARY KEY,
     ticker TEXT UNIQUE NOT NULL,
-    asset_type TEXT NOT NULL
+    tipo_ativo TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS prices (
-    price_id SERIAL PRIMARY KEY,
-    asset_id INTEGER REFERENCES assets(asset_id),
+CREATE TABLE IF NOT EXISTS precos (
+    id_precos SERIAL PRIMARY KEY,
+    id_ativo INTEGER REFERENCES ativos(id_ativo),
     data DATE NOT NULL,
-    open_price NUMERIC,
-    high_price NUMERIC,
-    low_price NUMERIC,
-    close_price NUMERIC,
+    preco_abertura NUMERIC,
+    preco_max NUMERIC,
+    preco_min NUMERIC,
+    preco_fechamento NUMERIC,
     volume BIGINT,
-    source TEXT,
-    CONSTRAINT unique_asset_date UNIQUE (asset_id, data)
+    fonte TEXT,
+    CONSTRAINT data_unica_operacao_ativo UNIQUE (id_ativo, data)
 );
 
-CREATE TABLE IF NOT EXISTS portfolio_transactions (
-    transaction_id SERIAL PRIMARY KEY,
-    asset_id INTEGER NOT NULL REFERENCES assets(asset_id),
+CREATE TABLE IF NOT EXISTS transacoes_portfolio (
+    id_transacao SERIAL PRIMARY KEY,
+    id_ativo INTEGER NOT NULL REFERENCES ativos(id_ativo),
     data_transacao DATE NOT NULL,
     quantidade NUMERIC(18,6) NOT NULL,
     preco_transacao NUMERIC(18,6) NOT NULL,
@@ -27,30 +27,24 @@ CREATE TABLE IF NOT EXISTS portfolio_transactions (
 
 );
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_transactions_asset
-    ON portfolio_transactions(asset_id);
+CREATE INDEX IF NOT EXISTS indice_transacao_ativo
+    ON transacoes_portfolio(id_ativo);
 
-CREATE INDEX IF NOT EXISTS idx_portfolio_transactions_date
-    ON portfolio_transactions(data_transacao);
+CREATE INDEX IF NOT EXISTS indice_transacao_data
+    ON transacoes_portfolio(data_transacao);
 
-CREATE TABLE IF NOT EXISTS portfolio_daily (
-    date DATE PRIMARY KEY,
-    portfolio_price NUMERIC(14,4) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Garante que ativos sem transações sejam removidos para manter a interface limpa
-CREATE OR REPLACE FUNCTION fn_limpar_ativos_gastos()
+-- Essa função foi necessária para remover um bug. Após deletar registros/transações, ela garante que ativos sem transações sejam removidos para manter o menu suspenso limpo/correto
+CREATE OR REPLACE FUNCTION limpar_lista_suspensa()
 RETURNS TRIGGER AS $$
 BEGIN
-    DELETE FROM assets 
-    WHERE asset_id NOT IN (SELECT DISTINCT asset_id FROM portfolio_transactions)
-    AND asset_type = 'ativo';
+    DELETE FROM ativos 
+    WHERE id_ativo NOT IN (SELECT DISTINCT id_ativo FROM transacoes_portfolio)
+    AND tipo_ativo = 'ativo';
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trg_pos_delete_transacao
-AFTER DELETE ON portfolio_transactions
+CREATE OR REPLACE TRIGGER trg_lista_suspensa
+AFTER DELETE ON transacoes_portfolio
 FOR EACH STATEMENT
-EXECUTE FUNCTION fn_limpar_ativos_gastos();
+EXECUTE FUNCTION limpar_lista_suspensa();

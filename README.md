@@ -64,8 +64,8 @@ Investimentos/
 ├── scripts/
 │   ├── .env.example            # Renomeie para .env 
 │   ├── __init__.py
-│   ├── backfill_historico.py
-│   ├── bootstrap.py
+│   ├── pipeline_incremental.py
+│   ├── roteiro_central
 │   ├── calcula_portfolio.py
 │   ├── ingest_portfolio.py
 │   └── sql
@@ -95,7 +95,7 @@ Investimentos/
                   │
                   ▼
         ┌───────────────────────┐
-        │    bootstrap.py       │
+        │    roteiro_central    │
         │                       │
         │ • leitura tickers     │
         │ • coleta yfinance     │
@@ -139,7 +139,7 @@ Investimentos/
 
 ### 2.1: Renomeie o arquivo .example.env
 
-O arquivo .example.env contêm as credenciais para configuração do banco de dados postreSQL.
+O arquivo .example.env contêm as credenciais para configuração do banco de dados postgreSQL.
 Renomeie o arquivo removendo o `.example`, deixando apenas como `.env`. O arquivo ficará oculto na pasta.
 Para ler o conteúdo do arquivo oculto, abra o terminal no caminho onde o arquivo está localizado e digite `cat .env`.
 Caso precise editá-lo, abra o terminal no caminho onde o arquivo está localizado e digite "nano .env". Após editar, salve (`Ctrl + O`), pressione `Enter` e feche (`Ctrl + X`).
@@ -152,7 +152,7 @@ Abra o terminal na raiz do projeto e digite o seguinte comando:
 ```bash
 docker compose up --build
 ```
-Serão criados uma imagem e três containers para o projeto. 
+Serão criados três imagens e três containers para o projeto. 
 #### Tela de progresso - Execução manual no terminal
 ![Terminal progress](docs/images/pipeline_terminal.png)
 
@@ -173,11 +173,11 @@ docker compose down     # Caro queira remover os containers
 Os dados ficam salvos dentro de um volume no Docker, então mesmo que os containers sejam removidos, ao retornar para a aplicação os seus dados estarão disponíveis.
 
 #### Nota2:
-A partir de agora a imagem e container já estão criados no Docker e não precisam ser recriados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
+A partir de agora as imagens e containers já estão criados no Docker e não precisam ser recriados. Para acessar a aplicação basta usar o "compose up -d" e "compose down".
 ```bash
-docker compose up              # Iniciar a imagem/container e rodar a aplicação
+docker compose up              # Iniciar os containers e rodar a aplicação
 Ctrl + C                       # Stop nos containers
-docker compose down            # Pausar tudo
+docker compose down            # Caro queira remover os containers
 ``` 
 
 ### 2.3: Alimentação do indices.csv

@@ -23,7 +23,7 @@ services:
       #- data_volume:/data          Vou monitorar, depois apago essas linhas
       - ./data:/app/data
       - ./logs:/app/logs
-    command: python scripts/bootstrap.py
+    command: python scripts/roteiro_central.py
 
   dashboard:
     build: .

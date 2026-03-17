@@ -1,7 +1,7 @@
 [project]
 name = "investimentos-pipeline"
 version = "0.1.0"
-description = "Financial data pipeline with evidence-based analytics and automation"
+description = "Pipeline incremental para coleta de preços de ativos e gestão automatizada de carteira de investimentos"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
