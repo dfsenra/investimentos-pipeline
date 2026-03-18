@@ -6,7 +6,7 @@
 ## Objetivos do Projeto
 Desenvolver uma ferramenta para gestão financeira pessoal com as seguintes funções:
 ```
-* Interface 100% via Dashboard (Streamlit > Yfinance > SQL > Streamlit)
+* Interface 100% via Dashboard (Streamlit > Yfinance > SQL <-> Streamlit)
 * Pipeline incremental para coleta de cotações dos ativos da carteira do cliente
 * Dashboard com rendimentos, evolução patrimonial e índices do mercado
 * Histórico de todas as transações salvas em banco de dados persistente
@@ -111,6 +111,7 @@ Investimentos/
         │ • delay anti-rate     │    │
         │ • logging             │    │
         │ • SQL persistente     │    │
+        │ • Dashboard atualizado│    │        
         └───────────┬───────────┘    │
                     │                ▲
                     ▼                │
@@ -125,12 +126,13 @@ Investimentos/
         ┌───────────────────────┐    │
         │     pipeline_incre.   │▶──┘
         └───────────┬───────────┘
-                    │
-                    ▼
-         ┌────────────────────┐
-         │        Logs        │
-         │  (auditoria/hist.) │
-         └────────────────────┘
+                    │  
+                    ▼   
+         ┌────────────────────┐                             
+         │        Logs        │                                    
+         │  (auditoria/hist.) │                            
+         └────────────────────┘                            
+
 ```
 
 ## 2. Preparando o seu ambiente para o pipeline
