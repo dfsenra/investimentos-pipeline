@@ -93,39 +93,39 @@ Investimentos/
             └───────┬─────────┘
                     │
                     ▼
-        ┌─────────────────────────┐
-        │     roteiro_central     │
-        │                         │
-        │ • criação banco SQL     │
-        │ • criação tabelas/views │
-        └───────────┬─────────────┘
+        ┌───────────────────────────┐
+        │      roteiro_central      │
+        │                           │
+        │ • criação SQL persistente │
+        │ • criação tabelas/views   │
+        └───────────┬───────────────┘
                     │
                     ▼
         ┌───────────────────────┐
-        │     pipeline_incre.   │◀──┐
-        │                       │    │               
-        │ • leitura indices.csv │    │
-        │ • leitura banco SQL   │    │          
+        │     pipeline_incre.   │ ◀──┐ 
+        │                       │    │                
+        │ • leitura indices.csv │    │ 
+        │ • leitura banco SQL   │    │           
         │ • validações          │    │    
-        │ • coleta yfinance     │    │
-        │ • delay anti-rate     │    │
-        │ • logging             │    │
-        │ • SQL persistente     │    │
+        │ • coleta yfinance     │    │ 
+        │ • ingestão no SQL     │    │        
+        │ • delay anti-rate     │    │ 
+        │ • logging             │    │ 
         │ • Dashboard atualizado│    │        
-        └───────────┬───────────┘    │
-                    │                ▲
-                    ▼                │
+        └───────────┬───────────┘    │  
+                    │                ▲  
+                    ▼                │  
             ┌────────────────┐       │   
-            │   Streamlit    │       │
-            │ (input manual) │       │
-            │                │       │
-            │ • ingestão SQL │       │            
-            └───────┬────────┘       │
-                    │                │
-                    ▼                │
-        ┌───────────────────────┐    │
-        │     pipeline_incre.   │▶──┘
-        └───────────┬───────────┘
+            │   Streamlit    │       │  
+            │ (input manual) │       │  
+            │                │       │  
+            │ • ingestão SQL │       │                    
+            └───────┬────────┘       │  
+                    │                │  
+                    ▼                │  
+        ┌───────────────────────┐    │  
+        │     pipeline_incre.   │ ▶──┘   
+        └───────────┬───────────┘       
                     │  
                     ▼   
          ┌────────────────────┐                             
