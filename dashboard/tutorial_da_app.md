@@ -38,7 +38,7 @@ Esta App armazena todos as informações em um banco de dados SQL, conforme tóp
         * Exibe a performance geral da sua carteira atual  
         * Performance por Ativo: Exibe a performance de cada ativo da sua carteira atual  
                 
-**Nota**: Performances exibidas para somente os ativos que estão comprados.
+**Nota 3:** Performances exibidas para somente os ativos que estão comprados.
 
 3) Retornos Realizados:  
         
@@ -50,13 +50,13 @@ Esta App armazena todos as informações em um banco de dados SQL, conforme tóp
         * Por padrão esta App vem com dois índices de mercado: Ibovespa e S&P500.  
         * Caso queira incluir novos, adicione no arquivo indices.csv, localizado em /data/indices.csv  
         
-**Nota:** Ao adicionar um novo índice atente-se ao formato dos dados, ticker utilizado pelo Yahoo Finance e potencial necessidade de limpeza e tratamento dos dados.
+**Nota 4:** Ao adicionar um novo índice atente-se ao formato dos dados, ticker utilizado pelo Yahoo Finance e potencial necessidade de limpeza e tratamento dos dados.
 
 ##### 2.2 Aba Registrar Operações
 
 É aqui onde você irá registrar as transações de compra e venda dos seus ativos.
 
-Importante: Como os dados são baixados do Yahoo Finance é importante incluir o ".SA" ao final do ticker de cada ativo.
+**Importante:** Como os dados são baixados do Yahoo Finance é importante incluir o ".SA" ao final do ticker de cada ativo.
 Exemplo: Para Petrobrás > PETR3.SA ou PETR4.SA.
 
 Não existem validações para impedir compras e/ou vendas em datas futuras, distinção entre Mercado à Vista ou Mercado Fracionário.
@@ -64,20 +64,23 @@ Essas peculiaridades ficam por conta do usuário, afinal é um aplicação de ge
 
 ##### 2.3 Aba Log de Operações
 
-Use essa aba para consultar o log completo de transações e também para excluir aquelas que forem necessário caso tenha inserido dados incorretos.
-**Nota:** Após uma transação ser excluída o preço médio é recalculado, assim como o patrimônio acumulado.
+Use essa aba para consultar o log completo de transações e também para excluir aquelas que forem necessário caso tenha inserido dados incorretos.  
+
+**Nota 5:** Após uma transação ser excluída o preço médio é recalculado, assim como o patrimônio acumulado.
 
 ---
 
 #### 3. Por onde começar...
 
 * Inicie na aba "Registrar Operações".  
-* Após clicar em "Salva Transação" o banco de dados será automaticamente atualizado.  
-* Aguarde um momento (veja ícone de loading do Streamlit no canto superior direito).  
+* Após clicar em "Salvar Transação" o banco de dados será automaticamente atualizado.  
+* Aguarde um momento (veja ícone de loading do Streamlit no canto superior direito e mensagem de transação registrada).  
 * Por fim, clique em "🔄 Atualizar Cotações" para que os gráficos reflitam a nova transação.
 
+---
 
-#### Author:
+#### Desenvolvido por:
 
-Douglas Senra
+Douglas Senra  
+dfsenra@gmail.com
 
