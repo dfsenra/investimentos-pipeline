@@ -211,25 +211,25 @@ pytest
 
 ## 4. Ficou curioso? Veja algumas imagens da App em uso 
 
-### Onde tudo começa - Registrando operações:  
+### 4.1 Onde tudo começa - Registrando operações:  
 
 #### <u>Aba "Registrar Operações"</u>
 ![Transacoes](docs/images/transacoes.png)
 
 
-### Histórico de transações:  
+### 4.2 Histórico de transações:  
 
 #### <u>Aba "Log de Operações"</u>
 ![Log_operacoes](docs/images/log_operacoes.png)
 
 
-### Aba de maior interesse, hehe - Performance e gráficos:  
+### 4.3 Aba de maior interesse, hehe - Performance e gráficos:  
 
 #### <u>Aba "Dashboard de Performance" - Performance e Retornos</u>
 ![Performance_Retornos](docs/images/performance_retornos.png)
 
 
-### Gráficos (mais bonitos que o Excel 😅)
+### 4.4 Gráficos (mais bonitos que o Excel 😅)
 
 #### <u>Aba "Dashboard de Performance" - Rentabilidade (base 100)</u>
 ![Rentabilidade_100](docs/images/rentabilidade_base_100.png)

@@ -1,3 +1,7 @@
 ﻿ticker,nome,tipo
 ^GSPC,S&P500,index
 ^BVSP,IBOVESPA,index
+USDBRL=X,Dolar_Comercial,index
+BZ=F,Petroleo_Brent,index
+^NDX,Nasdaq_100,index
+TIO=F,Minerio_Ferro,index
